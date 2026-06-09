@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
+import { Container, Title, Stack, Alert } from '@mantine/core';
 import { useBookings } from '../hooks/useBookings';
-import { fetchAdminEventTypes, createEventType, updateEventType, deleteEventType } from '../api/admin';
-import { fetchOwner, updateOwner } from '../api/admin';
+import {
+  fetchAdminEventTypes,
+  createEventType,
+  updateEventType,
+  deleteEventType,
+  fetchOwner,
+  updateOwner,
+} from '../api/admin';
 import { BookingsList } from '../components/BookingsList/BookingsList';
 import { EventTypeManager } from '../components/EventTypeManager/EventTypeManager';
 import { OwnerForm } from '../components/OwnerForm/OwnerForm';
-import { ErrorMessage } from '../components/ui/ErrorMessage';
 import type { EventType, Owner, CreateEventTypeRequest } from '../types';
-import styles from './AdminDashboard.module.css';
 
 export function AdminDashboard() {
   const { bookings, loading: bookingsLoading, error: bookingsError } = useBookings();
@@ -62,36 +67,34 @@ export function AdminDashboard() {
   };
 
   return (
-    <div className={styles.page}>
-      <h1 className={styles.heading}>Admin Dashboard</h1>
+    <Container size="lg" py="xl">
+      <Title order={1} mb="lg">Admin Dashboard</Title>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Upcoming Bookings</h2>
-        {bookingsError && <ErrorMessage message={bookingsError} />}
-        <BookingsList bookings={bookings} loading={bookingsLoading} />
-      </section>
+      <Stack gap="xl">
+        <div>
+          <Title order={3} mb="sm">Предстоящие брони</Title>
+          {bookingsError && <Alert color="red">{bookingsError}</Alert>}
+          <BookingsList bookings={bookings} loading={bookingsLoading} />
+        </div>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Event Types</h2>
-        {eventTypesError && <ErrorMessage message={eventTypesError} />}
-        <EventTypeManager
-          eventTypes={eventTypes}
-          loading={eventTypesLoading}
-          onCreate={handleCreate}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
-        />
-      </section>
+        <div>
+          <Title order={3} mb="sm">Типы событий</Title>
+          {eventTypesError && <Alert color="red">{eventTypesError}</Alert>}
+          <EventTypeManager
+            eventTypes={eventTypes}
+            loading={eventTypesLoading}
+            onCreate={handleCreate}
+            onUpdate={handleUpdate}
+            onDelete={handleDelete}
+          />
+        </div>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Owner Profile</h2>
-        {ownerError && <ErrorMessage message={ownerError} />}
-        <OwnerForm
-          owner={owner}
-          loading={ownerLoading}
-          onSave={handleOwnerSave}
-        />
-      </section>
-    </div>
+        <div>
+          <Title order={3} mb="sm">Профиль владельца</Title>
+          {ownerError && <Alert color="red">{ownerError}</Alert>}
+          <OwnerForm owner={owner} loading={ownerLoading} onSave={handleOwnerSave} />
+        </div>
+      </Stack>
+    </Container>
   );
 }

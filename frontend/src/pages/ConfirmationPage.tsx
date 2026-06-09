@@ -1,26 +1,32 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/Button';
-import styles from './ConfirmationPage.module.css';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Container, Paper, ThemeIcon, Title, Text, Button } from '@mantine/core';
 
 export function ConfirmationPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <div className={styles.icon}>✓</div>
-        <h1 className={styles.heading}>Booking confirmed!</h1>
-        <p className={styles.text}>
-          Your booking <strong>#{id}</strong> has been created.
-        </p>
-        <p className={styles.text}>
-          You will receive a confirmation email shortly.
-        </p>
-        <Button onClick={() => navigate('/')}>
-          Back to home
+    <Container size="xs" py="xl">
+      <Paper
+        p="xl"
+        withBorder
+        ta="center"
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
+      >
+        <ThemeIcon size="xl" radius="xl" color="green">
+          ✓
+        </ThemeIcon>
+        <Title order={2}>Бронь подтверждена!</Title>
+        <Text c="dimmed" size="sm">
+          Ваша бронь <strong>#{id}</strong> создана.
+        </Text>
+        <Text c="dimmed" size="sm">
+          Вы получите письмо с подтверждением.
+        </Text>
+        <Button onClick={() => navigate('/')} mt="md">
+          На главную
         </Button>
-      </div>
-    </div>
+      </Paper>
+    </Container>
   );
 }

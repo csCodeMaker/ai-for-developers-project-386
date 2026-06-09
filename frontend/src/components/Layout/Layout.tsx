@@ -1,31 +1,30 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import styles from './Layout.module.css';
+import { Outlet, useLocation } from 'react-router-dom';
+import { AppShell, Group, Anchor } from '@mantine/core';
 
 export function Layout() {
   const { pathname } = useLocation();
   const isAdmin = pathname.startsWith('/admin');
 
   return (
-    <div className={styles.layout}>
-      <header className={styles.header}>
-        <Link to="/" className={styles.logo}>
-          Booking Service
-        </Link>
-        <nav className={styles.nav}>
-          {isAdmin ? (
-            <Link to="/" className={styles.navLink}>
-              Guest view
-            </Link>
-          ) : (
-            <Link to="/admin" className={styles.navLink}>
-              Admin
-            </Link>
-          )}
-        </nav>
-      </header>
-      <main className={styles.main}>
+    <AppShell header={{ height: 56 }} padding="md">
+      <AppShell.Header>
+        <Group h="100%" px="md" justify="space-between">
+          <Anchor href="/" underline="hover" c="dark" fw={700} fz="lg">
+            Календарь звонков
+          </Anchor>
+          <Anchor
+            href={isAdmin ? '/' : '/admin'}
+            underline="hover"
+            c="dimmed"
+            size="sm"
+          >
+            {isAdmin ? 'Guest view' : 'Admin'}
+          </Anchor>
+        </Group>
+      </AppShell.Header>
+      <AppShell.Main>
         <Outlet />
-      </main>
-    </div>
+      </AppShell.Main>
+    </AppShell>
   );
 }

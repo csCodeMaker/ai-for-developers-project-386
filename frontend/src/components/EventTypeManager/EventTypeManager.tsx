@@ -1,8 +1,16 @@
 import { useState } from 'react';
+import {
+  Table,
+  Button,
+  Group,
+  Stack,
+  TextInput,
+  Textarea,
+  Modal,
+  Text,
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import type { EventType, CreateEventTypeRequest } from '../../types';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import styles from './EventTypeManager.module.css';
 
 interface EventTypeManagerProps {
   eventTypes: EventType[];
@@ -19,6 +27,7 @@ export function EventTypeManager({
   onUpdate,
   onDelete,
 }: EventTypeManagerProps) {
+  const [opened, { open, close }] = useDisclosure(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -30,33 +39,30 @@ export function EventTypeManager({
     setTitle('');
     setDescription('');
     setDuration(30);
+    close();
   };
 
-  const startEdit = (et: EventType) => {
+  const openCreate = () => {
+    resetForm();
+    open();
+  };
+
+  const openEdit = (et: EventType) => {
     setEditingId(et.id);
     setTitle(et.title);
     setDescription(et.description);
     setDuration(et.duration);
+    open();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!title.trim() || !description.trim()) return;
     setBusy(true);
-
     try {
       if (editingId) {
-        await onUpdate(editingId, {
-          title: title.trim(),
-          description: description.trim(),
-          duration,
-        });
+        await onUpdate(editingId, { title: title.trim(), description: description.trim(), duration });
       } else {
-        await onCreate({
-          title: title.trim(),
-          description: description.trim(),
-          duration,
-        });
+        await onCreate({ title: title.trim(), description: description.trim(), duration });
       }
       resetForm();
     } finally {
@@ -74,79 +80,60 @@ export function EventTypeManager({
   };
 
   return (
-    <div className={styles.container}>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <Input
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          placeholder="30-min call"
-        />
-        <div className={styles.field}>
-          <label className={styles.label}>Description</label>
-          <textarea
-            className={styles.textarea}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            placeholder="Quick chat about..."
-            rows={2}
-          />
-        </div>
-        <Input
-          label="Duration (min)"
-          type="number"
-          min={5}
-          max={120}
-          value={duration}
-          onChange={(e) => setDuration(Number(e.target.value))}
-          required
-        />
-        <div className={styles.actions}>
-          <Button type="submit" disabled={busy}>
-            {editingId ? 'Update' : 'Create'}
-          </Button>
-          {editingId && (
-            <Button variant="secondary" onClick={resetForm} type="button">
-              Cancel
-            </Button>
-          )}
-        </div>
-      </form>
+    <>
+      <Group justify="space-between" mb="sm">
+        <Text size="sm" c="dimmed">
+          {loading ? 'Загрузка...' : `${eventTypes.length} типов событий`}
+        </Text>
+        <Button onClick={openCreate} size="xs">Создать</Button>
+      </Group>
 
-      {loading && <p className={styles.muted}>Loading...</p>}
+      <Modal
+        opened={opened}
+        onClose={close}
+        title={editingId ? 'Редактировать тип события' : 'Создать тип события'}
+        size="sm"
+      >
+        <Stack gap="sm">
+          <TextInput label="Название" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <Textarea label="Описание" value={description} onChange={(e) => setDescription(e.target.value)} required rows={2} />
+          <TextInput label="Длительность (мин)" type="number" min={5} max={120} value={duration} onChange={(e) => setDuration(Number(e.target.value))} required />
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={close}>Отмена</Button>
+            <Button onClick={handleSubmit} loading={busy}>{editingId ? 'Обновить' : 'Создать'}</Button>
+          </Group>
+        </Stack>
+      </Modal>
 
-      <div className={styles.list}>
-        {eventTypes.map((et) => (
-          <div key={et.id} className={styles.item}>
-            <div>
-              <strong>{et.title}</strong>
-              <span className={styles.meta}>
-                {' '}
-                &mdash; {et.duration}min
-                {et.isDisabled ? ' (disabled)' : ''}
-              </span>
-            </div>
-            <div className={styles.itemActions}>
-              <Button
-                variant="secondary"
-                onClick={() => startEdit(et)}
-                disabled={busy}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="danger"
-                onClick={() => handleDelete(et.id)}
-                disabled={busy}
-              >
-                {et.isDisabled ? 'Delete' : 'Disable'}
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+      <Table striped highlightOnHover withTableBorder>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Название</Table.Th>
+            <Table.Th>Длительность</Table.Th>
+            <Table.Th>Статус</Table.Th>
+            <Table.Th></Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {eventTypes.map((et) => (
+            <Table.Tr key={et.id}>
+              <Table.Td fw={500}>{et.title}</Table.Td>
+              <Table.Td>{et.duration} мин</Table.Td>
+              <Table.Td>{et.isDisabled ? 'Отключён' : 'Активен'}</Table.Td>
+              <Table.Td>
+                <Group gap="xs">
+                  <Button variant="outline" size="xs" onClick={() => openEdit(et)} disabled={busy}>
+                    Ред.
+                  </Button>
+                  <Button variant="outline" color="red" size="xs" onClick={() => handleDelete(et.id)} disabled={busy}>
+                    {et.isDisabled ? 'Удалить' : 'Откл.'}
+                  </Button>
+                </Group>
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </>
   );
 }

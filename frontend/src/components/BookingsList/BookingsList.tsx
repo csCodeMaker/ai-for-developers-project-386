@@ -1,5 +1,5 @@
+import { Table, Text } from '@mantine/core';
 import type { Booking } from '../../types';
-import styles from './BookingsList.module.css';
 
 interface BookingsListProps {
   bookings: Booking[];
@@ -8,35 +8,36 @@ interface BookingsListProps {
 
 function formatDateTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleString('en-US', {
+  return d.toLocaleString('ru-RU', {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
 }
 
 export function BookingsList({ bookings, loading }: BookingsListProps) {
-  if (loading) {
-    return <p className={styles.muted}>Loading bookings...</p>;
-  }
-
-  if (bookings.length === 0) {
-    return <p className={styles.muted}>No upcoming bookings.</p>;
-  }
+  if (loading) return <Text c="dimmed" size="sm">Загрузка броней...</Text>;
+  if (bookings.length === 0) return <Text c="dimmed" size="sm">Нет предстоящих броней.</Text>;
 
   return (
-    <div className={styles.table}>
-      {bookings.map((b) => (
-        <div key={b.id} className={styles.row}>
-          <div className={styles.guest}>
-            <strong>{b.guestName}</strong>
-            <span className={styles.email}>{b.guestEmail}</span>
-          </div>
-          <div className={styles.time}>
-            {formatDateTime(b.startTime)} &ndash;{' '}
-            {formatDateTime(b.endTime)}
-          </div>
-        </div>
-      ))}
-    </div>
+    <Table striped highlightOnHover withTableBorder>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>Гость</Table.Th>
+          <Table.Th>Email</Table.Th>
+          <Table.Th>Начало</Table.Th>
+          <Table.Th>Конец</Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>
+        {bookings.map((b) => (
+          <Table.Tr key={b.id}>
+            <Table.Td fw={500}>{b.guestName}</Table.Td>
+            <Table.Td>{b.guestEmail}</Table.Td>
+            <Table.Td>{formatDateTime(b.startTime)}</Table.Td>
+            <Table.Td>{formatDateTime(b.endTime)}</Table.Td>
+          </Table.Tr>
+        ))}
+      </Table.Tbody>
+    </Table>
   );
 }

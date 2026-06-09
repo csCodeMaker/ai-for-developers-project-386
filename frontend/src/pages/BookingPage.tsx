@@ -1,87 +1,175 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Title,
+  Text,
+  Button,
+  Stack,
+  Paper,
+  TextInput,
+  Grid,
+  Group,
+  Alert,
+  ScrollArea,
+} from '@mantine/core';
+import { DatePicker } from '@mantine/dates';
 import { useSlots } from '../hooks/useSlots';
-import { Calendar } from '../components/Calendar/Calendar';
-import { TimeSlotGrid } from '../components/TimeSlotGrid/TimeSlotGrid';
-import { BookingForm } from '../components/BookingForm/BookingForm';
-import { Button } from '../components/ui/Button';
-import { Loading } from '../components/ui/Loading';
-import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { createBooking } from '../api/bookings';
-import styles from './BookingPage.module.css';
+import { Loader } from '../components/ui/Loader';
+
+function formatTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
 
 export function BookingPage() {
   const { eventTypeId } = useParams<{ eventTypeId: string }>();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const { slots, loading, error } = useSlots(eventTypeId!, selectedDate);
+  const { slots, loading, error: slotsError } = useSlots(eventTypeId!, selectedDate);
 
-  const handleBooking = async (data: {
-    guestName: string;
-    guestEmail: string;
-  }) => {
-    if (!eventTypeId || !selectedSlot) return;
+  const today = new Date();
+  const maxDate = new Date(today);
+  maxDate.setDate(today.getDate() + 13);
+
+  const handleSubmit = async () => {
+    if (!eventTypeId || !selectedSlot || !guestName.trim() || !guestEmail.trim()) return;
 
     setSubmitting(true);
-    setSubmitError(null);
+    setError(null);
 
     try {
       const booking = await createBooking({
         eventTypeId,
-        guestName: data.guestName,
-        guestEmail: data.guestEmail,
+        guestName: guestName.trim(),
+        guestEmail: guestEmail.trim(),
         startTime: selectedSlot,
       });
       navigate(`/booking/${booking.id}`);
     } catch (e: unknown) {
-      setSubmitError(e instanceof Error ? e.message : 'Booking failed');
+      setError(e instanceof Error ? e.message : 'Ошибка бронирования');
     } finally {
       setSubmitting(false);
     }
   };
 
+  const todayStr = today.toISOString().slice(0, 10);
+  const maxDateStr = maxDate.toISOString().slice(0, 10);
+
   return (
-    <div className={styles.page}>
-      <Button variant="secondary" onClick={() => navigate('/')}>
-        &larr; Back
+    <Container size="lg" py="xl">
+      <Button variant="subtle" onClick={() => navigate('/')} mb="lg">
+        &larr; Назад
       </Button>
 
-      <h1 className={styles.heading}>Select a date &amp; time</h1>
+      <Title order={2} mb="xl">
+        Выберите дату и время
+      </Title>
 
-      <Calendar selectedDate={selectedDate} onSelect={setSelectedDate} />
+      <Grid gap="xl">
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <Paper p="md" withBorder>
+            <DatePicker
+              value={selectedDate}
+              onChange={setSelectedDate}
+              minDate={todayStr}
+              maxDate={maxDateStr}
+              getDayProps={(date) => ({
+                selected: date === selectedDate,
+                onClick: () => setSelectedDate(date),
+              })}
+            />
+          </Paper>
+        </Grid.Col>
 
-      {!selectedDate && (
-        <p className={styles.hint}>Pick a date to see available slots.</p>
-      )}
-
-      {loading && <Loading />}
-      {error && <ErrorMessage message={error} />}
-
-      {selectedDate && !loading && !error && (
-        <>
-          <TimeSlotGrid
-            slots={slots}
-            selectedSlot={selectedSlot}
-            onSelect={setSelectedSlot}
-          />
-
-          {selectedSlot && (
-            <>
-              <h2 className={styles.subheading}>Your details</h2>
-              {submitError && <ErrorMessage message={submitError} />}
-              <BookingForm
-                selectedSlot={selectedSlot}
-                onSubmit={handleBooking}
-                loading={submitting}
-              />
-            </>
+        <Grid.Col span={{ base: 12, md: 7 }}>
+          {!selectedDate && (
+            <Text c="dimmed" ta="center" py="xl">
+              Выберите дату, чтобы увидеть доступные слоты
+            </Text>
           )}
-        </>
-      )}
-    </div>
+
+          {loading && <Loader />}
+
+          {slotsError && <Alert color="red">{slotsError}</Alert>}
+
+          {selectedDate && !loading && !slotsError && (
+            <Stack gap="sm">
+              <Text fw={600} size="sm" c="dimmed">
+                Доступное время на{' '}
+                {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU', {
+                  day: 'numeric',
+                  month: 'long',
+                })}
+              </Text>
+
+              <ScrollArea.Autosize mah={320}>
+                <Group gap="xs" wrap="wrap">
+                  {slots.length === 0 ? (
+                    <Text c="dimmed" size="sm" py="md">
+                      Нет доступных слотов на этот день
+                    </Text>
+                  ) : (
+                    slots.map((slot) => {
+                      const isSelected = slot.startTime === selectedSlot;
+                      return (
+                        <Button
+                          key={slot.startTime}
+                          variant={isSelected ? 'filled' : 'outline'}
+                          onClick={() => setSelectedSlot(slot.startTime)}
+                          size="sm"
+                        >
+                          {formatTime(slot.startTime)}
+                        </Button>
+                      );
+                    })
+                  )}
+                </Group>
+              </ScrollArea.Autosize>
+
+              {selectedSlot && (
+                <Paper p="md" withBorder mt="md">
+                  <Stack gap="sm">
+                    <Text fw={600} size="sm">
+                      Ваши данные
+                    </Text>
+                    <TextInput
+                      label="Имя"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      placeholder="Иван Иванов"
+                      required
+                    />
+                    <TextInput
+                      label="Email"
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      placeholder="ivan@example.com"
+                      required
+                    />
+                    {error && <Alert color="red">{error}</Alert>}
+                    <Button
+                      onClick={handleSubmit}
+                      loading={submitting}
+                      disabled={!guestName.trim() || !guestEmail.trim()}
+                    >
+                      {submitting ? 'Бронирование...' : 'Записаться'}
+                    </Button>
+                  </Stack>
+                </Paper>
+              )}
+            </Stack>
+          )}
+        </Grid.Col>
+      </Grid>
+    </Container>
   );
 }
