@@ -20,4 +20,8 @@ mock-server:
 frontend-dev:
 	cd frontend && npm run dev
 
-dev: mock-server frontend-dev
+dev:
+	@echo "Starting mock server on :4010 and frontend on :5173..."
+	@cd frontend && ./scripts/mock-server.sh &
+	@sleep 2
+	@cd frontend && npm run dev
