@@ -1,0 +1,38 @@
+.muted {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  padding: 16px 0;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.guest {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.email {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.time {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
