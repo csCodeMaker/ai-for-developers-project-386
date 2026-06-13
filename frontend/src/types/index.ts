@@ -29,6 +29,12 @@ export interface AvailableSlot {
   endTime: string;
 }
 
+export interface Slot {
+  startTime: string;
+  endTime: string;
+  isBusy: boolean;
+}
+
 export interface ErrorResponse {
   code: string;
   message: string;

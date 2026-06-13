@@ -9,7 +9,6 @@ import {
   Paper,
   TextInput,
   Grid,
-  Group,
   Alert,
   ScrollArea,
 } from '@mantine/core';
@@ -111,7 +110,7 @@ export function BookingPage() {
               </Text>
 
               <ScrollArea.Autosize mah={320}>
-                <Group gap="xs" wrap="wrap">
+                <Stack gap="xs">
                   {slots.length === 0 ? (
                     <Text c="dimmed" size="sm" py="md">
                       Нет доступных слотов на этот день
@@ -122,16 +121,24 @@ export function BookingPage() {
                       return (
                         <Button
                           key={slot.startTime}
-                          variant={isSelected ? 'filled' : 'outline'}
-                          onClick={() => setSelectedSlot(slot.startTime)}
+                          fullWidth
+                          disabled={slot.isBusy}
+                          variant={
+                            isSelected ? 'filled' : slot.isBusy ? 'default' : 'outline'
+                          }
+                          color={slot.isBusy ? 'gray' : undefined}
+                          onClick={() =>
+                            !slot.isBusy && setSelectedSlot(slot.startTime)
+                          }
                           size="sm"
                         >
                           {formatTime(slot.startTime)}
+                          {slot.isBusy ? ' · занято' : ''}
                         </Button>
                       );
                     })
                   )}
-                </Group>
+                </Stack>
               </ScrollArea.Autosize>
 
               {selectedSlot && (
