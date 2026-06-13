@@ -27,10 +27,11 @@ model Booking {
   createdAt: utcDateTime;
 }
 
-/** Свободный слот (endTime = startTime + eventType.duration) */
-model AvailableSlot {
+/** Слот 30 минут (endTime = startTime + eventType.duration) */
+model Slot {
   startTime: utcDateTime;
   endTime: utcDateTime;
+  isBusy: boolean;
 }
 
 /** Единый формат ошибки */

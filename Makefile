@@ -1,4 +1,5 @@
-.PHONY: frontend-dev frontend-build mock-server typespec-build typespec-install frontend-install install dev
+.PHONY: frontend-dev frontend-build mock-server typespec-build typespec-install frontend-install install dev \
+	backend-run backend-build backend-test backend-gen
 
 frontend-install:
 	cd frontend && npm install
@@ -20,8 +21,22 @@ mock-server:
 frontend-dev:
 	cd frontend && npm run dev
 
+# ── Backend (Go) ─────────────────────────────────────────
+backend-run:
+	cd backend && make run
+
+backend-build:
+	cd backend && make build
+
+backend-test:
+	cd backend && make test
+
+backend-gen:
+	cd backend && make gen
+
+# Поднимает Go-бэкенд (:3000) и фронтенд (:5173)
 dev:
-	@echo "Starting mock server on :4010 and frontend on :5173..."
-	@cd frontend && ./scripts/mock-server.sh &
+	@echo "Starting backend on :3000 and frontend on :5173..."
+	@cd backend && go run ./cmd/server &
 	@sleep 2
 	@cd frontend && npm run dev

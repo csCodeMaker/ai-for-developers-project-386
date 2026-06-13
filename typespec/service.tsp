@@ -20,11 +20,11 @@ interface GuestEventTypes {
 
 @route("api/event-types/{eventTypeId}/slots")
 interface GuestSlots {
-  /** Свободные слоты на дату в окне +14 дней */
+  /** Слоты на дату в окне +14 дней (с признаком занятости) */
   @get list(
     @path eventTypeId: string,
     @query date: plainDate,
-  ): AvailableSlot[] | ErrorResponse;
+  ): Slot[] | ErrorResponse;
 }
 
 @route("api/bookings")

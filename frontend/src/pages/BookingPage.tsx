@@ -15,6 +15,7 @@ import {
 import { DatePicker } from '@mantine/dates';
 import { useSlots } from '../hooks/useSlots';
 import { createBooking } from '../api/bookings';
+import { ApiError } from '../api/client';
 import { Loader } from '../components/ui/Loader';
 
 function formatTime(iso: string): string {
@@ -32,7 +33,7 @@ export function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { slots, loading, error: slotsError } = useSlots(eventTypeId!, selectedDate);
+  const { slots, loading, error: slotsError, reload } = useSlots(eventTypeId!, selectedDate);
 
   const today = new Date();
   const maxDate = new Date(today);
@@ -53,7 +54,14 @@ export function BookingPage() {
       });
       navigate(`/booking/${booking.id}`);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Ошибка бронирования');
+      if (e instanceof ApiError && e.status === 409) {
+        // Слот заняли между выбором и отправкой — обновляем слоты.
+        setError('Этот слот только что заняли. Выберите другое время.');
+        setSelectedSlot(null);
+        reload();
+      } else {
+        setError(e instanceof Error ? e.message : 'Ошибка бронирования');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -101,6 +109,7 @@ export function BookingPage() {
 
           {selectedDate && !loading && !slotsError && (
             <Stack gap="sm">
+              {!selectedSlot && error && <Alert color="red">{error}</Alert>}
               <Text fw={600} size="sm" c="dimmed">
                 Доступное время на{' '}
                 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU', {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchSlots } from '../api/slots';
 import type { Slot } from '../types';
 
@@ -7,7 +7,7 @@ export function useSlots(eventTypeId: string, date: string | null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!date) {
       setSlots([]);
       return;
@@ -22,5 +22,9 @@ export function useSlots(eventTypeId: string, date: string | null) {
       .finally(() => setLoading(false));
   }, [eventTypeId, date]);
 
-  return { slots, loading, error };
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return { slots, loading, error, reload: load };
 }
