@@ -19,10 +19,10 @@ export function EventTypeCard({ eventType }: EventTypeCardProps) {
       </Text>
       <Group justify="space-between" align="center">
         <Text size="sm" c="blue" fw={500}>
-          {eventType.duration} min
+          {eventType.duration} мин
         </Text>
         <Button onClick={() => navigate(`/book/${eventType.id}`)}>
-          Book
+          Записаться
         </Button>
       </Group>
     </Card>

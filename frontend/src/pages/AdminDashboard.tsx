@@ -68,7 +68,7 @@ export function AdminDashboard() {
 
   return (
     <Container size="lg" py="xl">
-      <Title order={1} mb="lg">Admin Dashboard</Title>
+      <Title order={1} mb="lg">Панель администратора</Title>
 
       <Stack gap="xl">
         <div>

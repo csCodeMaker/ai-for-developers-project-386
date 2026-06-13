@@ -18,7 +18,7 @@ export function Layout() {
             c="dimmed"
             size="sm"
           >
-            {isAdmin ? 'Guest view' : 'Admin'}
+            {isAdmin ? 'Гостевой режим' : 'Админка'}
           </Anchor>
         </Group>
       </AppShell.Header>

@@ -12,10 +12,10 @@ export function HomePage() {
   return (
     <Container size="sm" py="xl">
       <Title order={1} mb="xs">
-        Book a call
+        Записаться на звонок
       </Title>
       <Text c="dimmed" mb="lg">
-        Choose the type of meeting you would like to schedule.
+        Выберите тип встречи для записи.
       </Text>
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         {eventTypes.map((et) => (
