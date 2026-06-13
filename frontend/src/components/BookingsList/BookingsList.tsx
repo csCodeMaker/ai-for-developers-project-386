@@ -19,7 +19,7 @@ export function BookingsList({ bookings, loading }: BookingsListProps) {
   if (bookings.length === 0) return <Text c="dimmed" size="sm">Нет предстоящих броней.</Text>;
 
   return (
-    <Table striped highlightOnHover withTableBorder>
+    <Table striped highlightOnHover withTableBorder data-testid="bookings-table">
       <Table.Thead>
         <Table.Tr>
           <Table.Th>Гость</Table.Th>
@@ -30,7 +30,7 @@ export function BookingsList({ bookings, loading }: BookingsListProps) {
       </Table.Thead>
       <Table.Tbody>
         {bookings.map((b) => (
-          <Table.Tr key={b.id}>
+          <Table.Tr key={b.id} data-testid="booking-row">
             <Table.Td fw={500}>{b.guestName}</Table.Td>
             <Table.Td>{b.guestEmail}</Table.Td>
             <Table.Td>{formatDateTime(b.startTime)}</Table.Td>

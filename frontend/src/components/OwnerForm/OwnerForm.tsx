@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Paper, Stack, TextInput, Textarea, Button, Text } from '@mantine/core';
 import type { Owner } from '../../types';
 
@@ -9,10 +9,19 @@ interface OwnerFormProps {
 }
 
 export function OwnerForm({ owner, loading, onSave }: OwnerFormProps) {
-  const [name, setName] = useState(owner?.name ?? '');
-  const [email, setEmail] = useState(owner?.email ?? '');
-  const [description, setDescription] = useState(owner?.description ?? '');
-  const [timeZone, setTimeZone] = useState(owner?.timeZone ?? '');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [description, setDescription] = useState('');
+  const [timeZone, setTimeZone] = useState('');
+
+  useEffect(() => {
+    if (owner) {
+      setName(owner.name);
+      setEmail(owner.email);
+      setDescription(owner.description);
+      setTimeZone(owner.timeZone);
+    }
+  }, [owner]);
   const [busy, setBusy] = useState(false);
 
   if (loading) return <Text c="dimmed" size="sm">Загрузка профиля...</Text>;
@@ -29,13 +38,13 @@ export function OwnerForm({ owner, loading, onSave }: OwnerFormProps) {
   };
 
   return (
-    <Paper p="md" withBorder>
+    <Paper p="md" withBorder data-testid="owner-form">
       <Stack gap="sm">
-        <TextInput label="Имя" value={name} onChange={(e) => setName(e.target.value)} required />
-        <TextInput label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <Textarea label="Описание" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-        <TextInput label="Часовой пояс" value={timeZone} onChange={(e) => setTimeZone(e.target.value)} placeholder="Europe/Moscow" />
-        <Button onClick={handleSubmit} loading={busy}>Сохранить</Button>
+        <TextInput label="Имя" value={name} onChange={(e) => setName(e.target.value)} required data-testid="owner-name" />
+        <TextInput label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required data-testid="owner-email" />
+        <Textarea label="Описание" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} data-testid="owner-description" />
+        <TextInput label="Часовой пояс" value={timeZone} onChange={(e) => setTimeZone(e.target.value)} placeholder="Europe/Moscow" data-testid="owner-timezone" />
+        <Button onClick={handleSubmit} loading={busy} data-testid="save-owner">Сохранить</Button>
       </Stack>
     </Paper>
   );

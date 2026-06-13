@@ -17,7 +17,7 @@ export function ConfirmationPage() {
           ✓
         </ThemeIcon>
         <Title order={2}>Бронь подтверждена!</Title>
-        <Text c="dimmed" size="sm">
+        <Text c="dimmed" size="sm" data-testid="booking-id">
           Ваша бронь <strong>#{id}</strong> создана.
         </Text>
         <Text c="dimmed" size="sm">

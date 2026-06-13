@@ -1,0 +1,12 @@
+{
+  "packages": {
+    "frontend": {
+      "release-type": "node",
+      "package-name": "frontend"
+    },
+    "backend": {
+      "release-type": "go",
+      "package-name": "backend"
+    }
+  }
+}

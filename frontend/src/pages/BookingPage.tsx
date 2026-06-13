@@ -33,11 +33,13 @@ export function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { slots, loading, error: slotsError, reload } = useSlots(eventTypeId!, selectedDate);
+  const dateStr = selectedDate;
+  const { slots, loading, error: slotsError, reload } = useSlots(eventTypeId!, dateStr);
 
-  const today = new Date();
-  const maxDate = new Date(today);
-  maxDate.setDate(today.getDate() + 13);
+  const today = new Date().toISOString().slice(0, 10);
+  const maxDateObj = new Date();
+  maxDateObj.setDate(maxDateObj.getDate() + 13);
+  const maxDate = maxDateObj.toISOString().slice(0, 10);
 
   const handleSubmit = async () => {
     if (!eventTypeId || !selectedSlot || !guestName.trim() || !guestEmail.trim()) return;
@@ -67,9 +69,6 @@ export function BookingPage() {
     }
   };
 
-  const todayStr = today.toISOString().slice(0, 10);
-  const maxDateStr = maxDate.toISOString().slice(0, 10);
-
   return (
     <Container size="lg" py="xl">
       <Button variant="subtle" onClick={() => navigate('/')} mb="lg">
@@ -82,16 +81,12 @@ export function BookingPage() {
 
       <Grid gap="xl">
         <Grid.Col span={{ base: 12, md: 5 }}>
-          <Paper p="md" withBorder>
+          <Paper p="md" withBorder data-testid="date-picker">
             <DatePicker
               value={selectedDate}
               onChange={setSelectedDate}
-              minDate={todayStr}
-              maxDate={maxDateStr}
-              getDayProps={(date) => ({
-                selected: date === selectedDate,
-                onClick: () => setSelectedDate(date),
-              })}
+              minDate={today}
+              maxDate={maxDate}
             />
           </Paper>
         </Grid.Col>
@@ -109,7 +104,7 @@ export function BookingPage() {
 
           {selectedDate && !loading && !slotsError && (
             <Stack gap="sm">
-              {!selectedSlot && error && <Alert color="red">{error}</Alert>}
+              {!selectedSlot && error && <Alert color="red" data-testid="booking-error">{error}</Alert>}
               <Text fw={600} size="sm" c="dimmed">
                 Доступное время на{' '}
                 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU', {
@@ -128,19 +123,22 @@ export function BookingPage() {
                     slots.map((slot) => {
                       const isSelected = slot.startTime === selectedSlot;
                       return (
-                        <Button
-                          key={slot.startTime}
-                          fullWidth
-                          disabled={slot.isBusy}
-                          variant={
-                            isSelected ? 'filled' : slot.isBusy ? 'default' : 'outline'
-                          }
-                          color={slot.isBusy ? 'gray' : undefined}
-                          onClick={() =>
-                            !slot.isBusy && setSelectedSlot(slot.startTime)
-                          }
-                          size="sm"
-                        >
+                          <Button
+                           key={slot.startTime}
+                           fullWidth
+                           disabled={slot.isBusy}
+                           variant={
+                             isSelected ? 'filled' : slot.isBusy ? 'default' : 'outline'
+                           }
+                           color={slot.isBusy ? 'gray' : undefined}
+                           onClick={() =>
+                             !slot.isBusy && setSelectedSlot(slot.startTime)
+                           }
+                           size="sm"
+                           data-testid="slot"
+                           data-busy={String(slot.isBusy)}
+                           data-start-time={slot.startTime}
+                         >
                           {formatTime(slot.startTime)}
                           {slot.isBusy ? ' · занято' : ''}
                         </Button>
@@ -156,27 +154,30 @@ export function BookingPage() {
                     <Text fw={600} size="sm">
                       Ваши данные
                     </Text>
-                    <TextInput
-                      label="Имя"
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      placeholder="Иван Иванов"
-                      required
-                    />
-                    <TextInput
-                      label="Email"
-                      type="email"
-                      value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
-                      placeholder="ivan@example.com"
-                      required
-                    />
-                    {error && <Alert color="red">{error}</Alert>}
-                    <Button
-                      onClick={handleSubmit}
-                      loading={submitting}
-                      disabled={!guestName.trim() || !guestEmail.trim()}
-                    >
+                     <TextInput
+                       label="Имя"
+                       value={guestName}
+                       onChange={(e) => setGuestName(e.target.value)}
+                       placeholder="Иван Иванов"
+                       required
+                       data-testid="guest-name"
+                     />
+                     <TextInput
+                       label="Email"
+                       type="email"
+                       value={guestEmail}
+                       onChange={(e) => setGuestEmail(e.target.value)}
+                       placeholder="ivan@example.com"
+                       required
+                       data-testid="guest-email"
+                     />
+                     {error && <Alert color="red" data-testid="booking-error">{error}</Alert>}
+                     <Button
+                       onClick={handleSubmit}
+                       loading={submitting}
+                       disabled={!guestName.trim() || !guestEmail.trim()}
+                       data-testid="book-submit"
+                     >
                       {submitting ? 'Бронирование...' : 'Записаться'}
                     </Button>
                   </Stack>

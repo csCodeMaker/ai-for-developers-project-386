@@ -85,7 +85,7 @@ export function EventTypeManager({
         <Text size="sm" c="dimmed">
           {loading ? 'Загрузка...' : `${eventTypes.length} типов событий`}
         </Text>
-        <Button onClick={openCreate} size="xs">Создать</Button>
+        <Button onClick={openCreate} size="xs" data-testid="create-event-type">Создать</Button>
       </Group>
 
       <Modal
@@ -95,17 +95,17 @@ export function EventTypeManager({
         size="sm"
       >
         <Stack gap="sm">
-          <TextInput label="Название" value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <Textarea label="Описание" value={description} onChange={(e) => setDescription(e.target.value)} required rows={2} />
-          <TextInput label="Длительность (мин)" type="number" min={5} max={120} value={duration} onChange={(e) => setDuration(Number(e.target.value))} required />
+          <TextInput label="Название" value={title} onChange={(e) => setTitle(e.target.value)} required data-testid="event-type-title" />
+          <Textarea label="Описание" value={description} onChange={(e) => setDescription(e.target.value)} required rows={2} data-testid="event-type-description" />
+          <TextInput label="Длительность (мин)" type="number" min={5} max={120} value={duration} onChange={(e) => setDuration(Number(e.target.value))} required data-testid="event-type-duration" />
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={close}>Отмена</Button>
-            <Button onClick={handleSubmit} loading={busy}>{editingId ? 'Обновить' : 'Создать'}</Button>
+            <Button onClick={handleSubmit} loading={busy} data-testid="save-event-type">{editingId ? 'Обновить' : 'Создать'}</Button>
           </Group>
         </Stack>
       </Modal>
 
-      <Table striped highlightOnHover withTableBorder>
+        <Table striped highlightOnHover withTableBorder data-testid="event-type-list">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Название</Table.Th>
@@ -116,16 +116,16 @@ export function EventTypeManager({
         </Table.Thead>
         <Table.Tbody>
           {eventTypes.map((et) => (
-            <Table.Tr key={et.id}>
+            <Table.Tr key={et.id} data-testid="event-type-row">
               <Table.Td fw={500}>{et.title}</Table.Td>
               <Table.Td>{et.duration} мин</Table.Td>
               <Table.Td>{et.isDisabled ? 'Отключён' : 'Активен'}</Table.Td>
               <Table.Td>
                 <Group gap="xs">
-                  <Button variant="outline" size="xs" onClick={() => openEdit(et)} disabled={busy}>
+                  <Button variant="outline" size="xs" onClick={() => openEdit(et)} disabled={busy} data-testid="edit-event-type">
                     Ред.
                   </Button>
-                  <Button variant="outline" color="red" size="xs" onClick={() => handleDelete(et.id)} disabled={busy}>
+                  <Button variant="outline" color="red" size="xs" onClick={() => handleDelete(et.id)} disabled={busy} data-testid="delete-event-type">
                     {et.isDisabled ? 'Удалить' : 'Откл.'}
                   </Button>
                 </Group>

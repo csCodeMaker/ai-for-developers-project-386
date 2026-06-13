@@ -1,5 +1,5 @@
 .PHONY: frontend-dev frontend-build mock-server typespec-build typespec-install frontend-install install dev \
-	backend-run backend-build backend-test backend-gen
+	backend-run backend-build backend-test backend-gen test-e2e test-e2e-ui
 
 frontend-install:
 	cd frontend && npm install
@@ -40,3 +40,9 @@ dev:
 	@cd backend && go run ./cmd/server &
 	@sleep 2
 	@cd frontend && npm run dev
+
+test-e2e:
+	cd frontend && npx playwright test
+
+test-e2e-ui:
+	cd frontend && npx playwright test --ui

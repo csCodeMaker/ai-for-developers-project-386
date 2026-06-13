@@ -10,7 +10,7 @@ export function EventTypeCard({ eventType }: EventTypeCardProps) {
   const navigate = useNavigate();
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
+    <Card shadow="sm" padding="lg" radius="md" withBorder data-testid="event-type-card">
       <Text fw={600} fz="lg" mb="xs">
         {eventType.title}
       </Text>
