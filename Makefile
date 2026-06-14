@@ -1,5 +1,5 @@
 .PHONY: frontend-dev frontend-build mock-server typespec-build typespec-install frontend-install install dev \
-	backend-run backend-build backend-test backend-gen test-e2e test-e2e-ui
+	backend-run backend-build backend-test backend-gen docker-build test-e2e test-e2e-ui
 
 frontend-install:
 	cd frontend && npm install
@@ -33,6 +33,9 @@ backend-test:
 
 backend-gen:
 	cd backend && make gen
+
+docker-build:
+	docker build -t booking-app .
 
 # Поднимает Go-бэкенд (:3000) и фронтенд (:5173)
 dev:
